@@ -34,11 +34,11 @@ export const models: Array<Model> = [
     description: 'Fast and efficient for simpler tasks',
   },
   {
-    id: 'deepseek-reasoner',
+    id: 'deepseek-r1',
     label: 'DeepSeek Reasoner',
     apiIdentifier: 'deepseek-reasoner',
     description: 'For complex, multi-step tasks',
   }
 ] as const
 
-export const DEFAULT_MODEL_NAME: string = 'gpt-4o'
+export const DEFAULT_MODEL_NAME: string = 'o1'
