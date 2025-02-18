@@ -1,27 +1,29 @@
 'use client'
-
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useWindowSize } from 'usehooks-ts'
 
 import { ModelSelector } from '@/components/model-selector'
 import { SidebarToggle } from '@/components/sidebar-toggle'
 import { Button } from '@/components/ui/button'
-import { PlusIcon, VercelIcon } from './icons'
+import { PlusIcon } from './icons'
 import { useSidebar } from './ui/sidebar'
-import { memo, useEffect } from 'react'
+import { memo } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
-import { VisibilityType, VisibilitySelector } from './visibility-selector'
+import type { VisibilityType } from './visibility-selector'
+import { VisibilitySelector } from './visibility-selector'
 import { useDeepResearch } from '@/lib/deep-research-context'
+import { models, reasoningModels } from '@/lib/ai/models'
 
 function PureChatHeader( {
   chatId,
   selectedModelId,
+  selectedReasoningModelId,
   selectedVisibilityType,
   isReadonly,
 }: {
   chatId: string
   selectedModelId: string
+  selectedReasoningModelId: string
   selectedVisibilityType: VisibilityType
   isReadonly: boolean
 } ) {
@@ -59,7 +61,17 @@ function PureChatHeader( {
 
       {!isReadonly && (
         <ModelSelector
+          label="Router Model"
+          models={models}
           selectedModelId={selectedModelId}
+          className="order-1 md:order-2"
+        />
+      )}
+      {!isReadonly && (
+        <ModelSelector
+          label="Reasoning Model"
+          models={reasoningModels}
+          selectedModelId={selectedReasoningModelId}
           className="order-1 md:order-2"
         />
       )}
@@ -84,12 +96,13 @@ function PureChatHeader( {
           Deploy with Vercel
         </Link>
       </Button> */}
-
-
     </header>
   )
 }
 
 export const ChatHeader = memo( PureChatHeader, ( prevProps, nextProps ) => {
-  return prevProps.selectedModelId === nextProps.selectedModelId
+  return (
+    prevProps.selectedModelId === nextProps.selectedModelId &&
+    prevProps.selectedReasoningModelId === nextProps.selectedReasoningModelId
+  )
 } )
