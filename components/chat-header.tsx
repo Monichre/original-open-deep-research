@@ -1,4 +1,5 @@
 'use client'
+import { memo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWindowSize } from 'usehooks-ts'
 
@@ -7,49 +8,52 @@ import { SidebarToggle } from '@/components/sidebar-toggle'
 import { Button } from '@/components/ui/button'
 import { PlusIcon } from './icons'
 import { useSidebar } from './ui/sidebar'
-import { memo } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 import type { VisibilityType } from './visibility-selector'
 import { VisibilitySelector } from './visibility-selector'
 import { useDeepResearch } from '@/lib/deep-research-context'
 import { models, reasoningModels } from '@/lib/ai/models'
 
+// Added dedicated interface and removed "isReadonly" as it's unused.
+interface ChatHeaderProps {
+  chatId: string
+  selectedModelId: string
+  selectedReasoningModelId: string
+  selectedVisibilityType: VisibilityType
+}
+
 function PureChatHeader( {
   chatId,
   selectedModelId,
   selectedReasoningModelId,
   selectedVisibilityType,
-  isReadonly,
-}: {
-  chatId: string
-  selectedModelId: string
-  selectedReasoningModelId: string
-  selectedVisibilityType: VisibilityType
-  isReadonly: boolean
-} ) {
+}: ChatHeaderProps ) {
   const router = useRouter()
   const { open } = useSidebar()
-
   const { width: windowWidth } = useWindowSize()
-
   const { clearState } = useDeepResearch()
+
+  // Extracted the inline onClick callback into a memoized function.
+  const handleNewChat = useCallback( () => {
+    router.push( '/' )
+    clearState()
+    router.refresh()
+  }, [router, clearState] )
+
+  // Simplified condition for rendering the new chat button.
+  const showNewChatButton = !open || windowWidth < 768
 
   return (
     <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
       <SidebarToggle />
 
-      {( !open || windowWidth < 768 ) && (
+      {showNewChatButton && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="outline"
               className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
-              onClick={() => {
-                router.push( '/' )
-                clearState()
-
-                router.refresh()
-              }}
+              onClick={handleNewChat}
             >
               <PlusIcon />
               <span className="md:sr-only">New Chat</span>
@@ -59,30 +63,25 @@ function PureChatHeader( {
         </Tooltip>
       )}
 
-      {!isReadonly && (
-        <ModelSelector
-          label="Router Model"
-          models={models}
-          selectedModelId={selectedModelId}
-          className="order-1 md:order-2"
-        />
-      )}
-      {!isReadonly && (
-        <ModelSelector
-          label="Reasoning Model"
-          models={reasoningModels}
-          selectedModelId={selectedReasoningModelId}
-          className="order-1 md:order-2"
-        />
-      )}
+      <ModelSelector
+        label="Router Model"
+        models={models}
+        selectedModelId={selectedModelId}
+        className="order-1 md:order-2"
+      />
 
-      {!isReadonly && (
-        <VisibilitySelector
-          chatId={chatId}
-          selectedVisibilityType={selectedVisibilityType}
-          className="order-1 md:order-3"
-        />
-      )}
+      <ModelSelector
+        label="Reasoning Model"
+        models={reasoningModels}
+        selectedModelId={selectedReasoningModelId}
+        className="order-1 md:order-2"
+      />
+
+      <VisibilitySelector
+        chatId={chatId}
+        selectedVisibilityType={selectedVisibilityType}
+        className="order-1 md:order-3"
+      />
 
       {/* <Button
         className="bg-orange-500 dark:bg-zinc-100 hover:bg-orange-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 hidden md:flex py-1.5 px-2 h-fit md:h-[34px] order-4 md:ml-auto"
@@ -100,9 +99,4 @@ function PureChatHeader( {
   )
 }
 
-export const ChatHeader = memo( PureChatHeader, ( prevProps, nextProps ) => {
-  return (
-    prevProps.selectedModelId === nextProps.selectedModelId &&
-    prevProps.selectedReasoningModelId === nextProps.selectedReasoningModelId
-  )
-} )
+export const ChatHeader = PureChatHeader

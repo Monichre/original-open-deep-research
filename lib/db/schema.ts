@@ -1,5 +1,5 @@
-import { BLOCK_KINDS } from '@/components/block';
-import type { InferSelectModel } from 'drizzle-orm';
+import { BLOCK_KINDS } from '@/components/block'
+import type { InferSelectModel } from 'drizzle-orm'
 import {
   pgTable,
   varchar,
@@ -10,107 +10,162 @@ import {
   primaryKey,
   foreignKey,
   boolean,
-} from 'drizzle-orm/pg-core';
+  integer,
+} from 'drizzle-orm/pg-core'
 
-export const user = pgTable('User', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  email: varchar('email', { length: 64 }).notNull(),
-  password: varchar('password', { length: 64 }),
-});
+export const user = pgTable( 'User', {
+  id: uuid( 'id' ).primaryKey().notNull().defaultRandom(),
+  email: varchar( 'email', { length: 64 } ).notNull(),
+  password: varchar( 'password', { length: 64 } ),
+} )
 
-export type User = InferSelectModel<typeof user>;
+export type User = InferSelectModel<typeof user>
 
-export const chat = pgTable('Chat', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  createdAt: timestamp('createdAt').notNull(),
-  title: text('title').notNull(),
-  userId: uuid('userId')
+export const chat = pgTable( 'Chat', {
+  id: uuid( 'id' ).primaryKey().notNull().defaultRandom(),
+  createdAt: timestamp( 'createdAt' ).notNull(),
+  title: text( 'title' ).notNull(),
+  userId: uuid( 'userId' )
     .notNull()
-    .references(() => user.id),
-  visibility: varchar('visibility', { enum: ['public', 'private'] })
+    .references( () => user.id ),
+  visibility: varchar( 'visibility', { enum: ['public', 'private'] } )
     .notNull()
-    .default('private'),
-});
+    .default( 'private' ),
+} )
 
-export type Chat = InferSelectModel<typeof chat>;
+export type Chat = InferSelectModel<typeof chat>
 
-export const message = pgTable('Message', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  chatId: uuid('chatId')
+export const message = pgTable( 'Message', {
+  id: uuid( 'id' ).primaryKey().notNull().defaultRandom(),
+  chatId: uuid( 'chatId' )
     .notNull()
-    .references(() => chat.id),
-  role: varchar('role').notNull(),
-  content: json('content').notNull(),
-  createdAt: timestamp('createdAt').notNull(),
-});
+    .references( () => chat.id ),
+  role: varchar( 'role' ).notNull(),
+  content: json( 'content' ).notNull(),
+  createdAt: timestamp( 'createdAt' ).notNull(),
+} )
 
-export type Message = InferSelectModel<typeof message>;
+export type Message = InferSelectModel<typeof message>
 
 export const vote = pgTable(
   'Vote',
   {
-    chatId: uuid('chatId')
+    chatId: uuid( 'chatId' )
       .notNull()
-      .references(() => chat.id),
-    messageId: uuid('messageId')
+      .references( () => chat.id ),
+    messageId: uuid( 'messageId' )
       .notNull()
-      .references(() => message.id),
-    isUpvoted: boolean('isUpvoted').notNull(),
+      .references( () => message.id ),
+    isUpvoted: boolean( 'isUpvoted' ).notNull(),
   },
-  (table) => {
+  ( table ) => {
     return {
-      pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-    };
+      pk: primaryKey( { columns: [table.chatId, table.messageId] } ),
+    }
   },
-);
+)
 
-export type Vote = InferSelectModel<typeof vote>;
+export type Vote = InferSelectModel<typeof vote>
 
 export const document = pgTable(
   'Document',
   {
-    id: uuid('id').notNull().defaultRandom(),
-    createdAt: timestamp('createdAt').notNull(),
-    title: text('title').notNull(),
-    content: text('content'),
-    kind: varchar('kind', { enum: ['text', 'code', 'spreadsheet'] })
+    id: uuid( 'id' ).notNull().defaultRandom(),
+    createdAt: timestamp( 'createdAt' ).notNull(),
+    title: text( 'title' ).notNull(),
+    content: text( 'content' ),
+    kind: varchar( 'kind', { enum: ['text', 'code', 'spreadsheet'] } )
       .notNull()
-      .default('text'),
-    userId: uuid('userId')
+      .default( 'text' ),
+    userId: uuid( 'userId' )
       .notNull()
-      .references(() => user.id),
+      .references( () => user.id ),
   },
-  (table) => {
+  ( table ) => {
     return {
-      pk: primaryKey({ columns: [table.id, table.createdAt] }),
-    };
+      pk: primaryKey( { columns: [table.id, table.createdAt] } ),
+    }
   },
-);
+)
 
-export type Document = InferSelectModel<typeof document>;
+export type Document = InferSelectModel<typeof document>
 
 export const suggestion = pgTable(
   'Suggestion',
   {
-    id: uuid('id').notNull().defaultRandom(),
-    documentId: uuid('documentId').notNull(),
-    documentCreatedAt: timestamp('documentCreatedAt').notNull(),
-    originalText: text('originalText').notNull(),
-    suggestedText: text('suggestedText').notNull(),
-    description: text('description'),
-    isResolved: boolean('isResolved').notNull().default(false),
-    userId: uuid('userId')
+    id: uuid( 'id' ).notNull().defaultRandom(),
+    documentId: uuid( 'documentId' ).notNull(),
+    documentCreatedAt: timestamp( 'documentCreatedAt' ).notNull(),
+    originalText: text( 'originalText' ).notNull(),
+    suggestedText: text( 'suggestedText' ).notNull(),
+    description: text( 'description' ),
+    isResolved: boolean( 'isResolved' ).notNull().default( false ),
+    userId: uuid( 'userId' )
       .notNull()
-      .references(() => user.id),
-    createdAt: timestamp('createdAt').notNull(),
+      .references( () => user.id ),
+    createdAt: timestamp( 'createdAt' ).notNull(),
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.id] }),
-    documentRef: foreignKey({
+  ( table ) => ( {
+    pk: primaryKey( { columns: [table.id] } ),
+    documentRef: foreignKey( {
       columns: [table.documentId, table.documentCreatedAt],
       foreignColumns: [document.id, document.createdAt],
-    }),
-  }),
-);
+    } ),
+  } ),
+)
 
-export type Suggestion = InferSelectModel<typeof suggestion>;
+export type Suggestion = InferSelectModel<typeof suggestion>
+
+export const users = pgTable( "user", {
+  id: text( "id" ).primaryKey(),
+  name: text( "name" ),
+  email: text( "email" ).unique(),
+  emailVerified: timestamp( "emailVerified" ),
+  image: text( "image" ),
+} )
+
+export const accounts = pgTable(
+  "account",
+  {
+    userId: text( "userId" )
+      .notNull()
+      .references( () => users.id, { onDelete: "cascade" } ),
+    type: text( "type" ).notNull(),
+    provider: text( "provider" ).notNull(),
+    providerAccountId: text( "providerAccountId" ).notNull(),
+    refresh_token: text( "refresh_token" ),
+    access_token: text( "access_token" ),
+    expires_at: integer( "expires_at" ),
+    token_type: text( "token_type" ),
+    scope: text( "scope" ),
+    id_token: text( "id_token" ),
+    session_state: text( "session_state" ),
+  },
+  ( account ) => ( {
+    compoundKey: primaryKey( { columns: [account.provider, account.providerAccountId] } ),
+  } )
+)
+
+
+export const sessions = pgTable( "session", {
+  sessionToken: text( "sessionToken" ).primaryKey(),
+  userId: text( "userId" )
+    .notNull()
+    .references( () => users.id, { onDelete: "cascade" } ),
+  expires: timestamp( "expires", { mode: "date" } ).notNull(),
+} )
+
+export const verificationTokens = pgTable(
+  "verificationToken",
+  {
+    identifier: text( "identifier" ).notNull(),
+    token: text( "token" ).notNull(),
+    expires: timestamp( "expires", { mode: "date" } ).notNull(),
+  },
+  ( vt ) => ( {
+    compoundKey: primaryKey( { columns: [vt.identifier, vt.token] } ),
+  } )
+)
+
+// Add other required tables (accounts, sessions, verification_tokens)
+// Full schema: https://authjs.dev/reference/adapter/drizzle

@@ -2,6 +2,7 @@ import { openai } from '@ai-sdk/openai'
 import { experimental_wrapLanguageModel as wrapLanguageModel } from 'ai'
 import { openrouter } from '@openrouter/ai-sdk-provider'
 import { togetherai } from '@ai-sdk/togetherai'
+import { anthropic } from '@ai-sdk/anthropic'
 
 import { customMiddleware } from './custom-middleware'
 // Type definition for valid reasoning models used for research and structured outputs
@@ -14,10 +15,15 @@ const VALID_REASONING_MODELS = [
   'o3-mini',
   'deepseek-ai/DeepSeek-R1',
   'gpt-4o',
+  'claude-3-5-sonnet-20240620'
 ] as const
 
 // Models that support JSON structured output
-const JSON_SUPPORTED_MODELS = ['gpt-4o', 'gpt-4o-mini'] as const
+const JSON_SUPPORTED_MODELS = [
+  'gpt-4o',
+  'gpt-4o-mini',
+  'claude-3-5-sonnet-20240620'
+] as const
 
 // Helper to check if model supports JSON
 export const supportsJsonOutput = ( modelId: string ) =>
@@ -66,20 +72,25 @@ export const customModel = ( apiIdentifier: string, forReasoning = false ) => {
     ? getReasoningModel( apiIdentifier )
     : apiIdentifier
 
-  if ( hasOpenRouterKey ) {
+  console.log( 'Using model:', modelId )
+
+  // Handle different model types
+  if ( modelId === 'claude-3-5-sonnet-20240620' ) {
     return wrapLanguageModel( {
-      model: openrouter( modelId ),
+      model: anthropic( modelId ),
       middleware: customMiddleware,
     } )
   }
 
-  // Select provider based on model
-  const model =
-    modelId === 'deepseek-ai/DeepSeek-R1'
-      ? togetherai( modelId )
-      : openai( modelId )
+  if ( modelId === 'deepseek-ai/DeepSeek-R1' ) {
+    return wrapLanguageModel( {
+      model: togetherai( modelId ),
+      middleware: customMiddleware,
+    } )
+  }
 
-  console.log( 'Using model:', modelId )
+  // Default to OpenAI/OpenRouter
+  const model = openai( modelId )
 
   return wrapLanguageModel( {
     model,

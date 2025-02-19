@@ -19,7 +19,25 @@ export const models: Array<Model> = [
     label: 'GPT 4o Mini',
     apiIdentifier: 'gpt-4o-mini',
     description: 'Affordable for complex, multi-step tasks',
-  }
+  },
+  {
+    id: 'o1',
+    label: 'o1',
+    apiIdentifier: 'o1',
+    description: 'For deep reasoning and complex, multi-step tasks',
+  },
+  {
+    id: 'o1-mini',
+    label: 'o1-mini',
+    apiIdentifier: 'o1-mini',
+    description: 'For deep reasoning and complex, multi-step tasks, cheaper.',
+  },
+  {
+    id: 'claude-3-5-sonnet-20240620',
+    label: 'Claude 3.5 Sonnet',
+    apiIdentifier: 'claude-3-5-sonnet-20241022',
+    description: 'For deep reasoning and complex, multi-step tasks, cheaper.',
+  },
 ] as const
 
 export const reasoningModels: Array<Model> = [
@@ -39,6 +57,18 @@ export const reasoningModels: Array<Model> = [
     id: 'o3-mini',
     label: 'o3-mini',
     apiIdentifier: 'o3-mini',
+    description: 'For deep reasoning and complex, multi-step tasks, cheaper.',
+  },
+  {
+    id: 'claude-3-5-sonnet-20241022',
+    label: 'Claude 3.5 Sonnet',
+    apiIdentifier: 'claude-3-5-sonnet-20241022',
+    description: 'Anthropics Smartest Model',
+  },
+  {
+    id: 'deepseek-ai/DeepSeek-R1',
+    label: 'DeepSeek-R1',
+    apiIdentifier: 'deepseek-ai/DeepSeek-R1',
     description: 'For deep reasoning and complex, multi-step tasks, cheaper.',
   }
 ] as const

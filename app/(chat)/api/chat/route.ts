@@ -61,12 +61,18 @@ export async function POST( request: Request ) {
 
   let session = await auth()
 
+  console.log( "🚀 ~ POST ~ session:", session )
+
+
   // If no session exists, create an anonymous session
   if ( !session?.user ) {
     try {
       const result = await signIn( 'credentials', {
         redirect: false,
       } )
+
+      console.log( "🚀 ~ POST ~ result:", result )
+
 
       if ( result?.error ) {
         console.error( 'Failed to create anonymous session:', result.error )
@@ -134,9 +140,12 @@ export async function POST( request: Request ) {
     ( model ) => model.id === reasoningModelId,
   )
 
+
+
   if ( !model || !reasoningModel ) {
     return new Response( 'Model not found', { status: 404 } )
   }
+  console.log( "🚀 ~ POST ~ reasoningModel:", reasoningModel )
 
   const coreMessages = convertToCoreMessages( messages )
   const userMessage = getMostRecentUserMessage( coreMessages )
@@ -172,7 +181,7 @@ export async function POST( request: Request ) {
         model: customModel( model.apiIdentifier, false ),
         system: systemPrompt,
         messages: coreMessages,
-        maxSteps: 10,
+        // maxSteps: 10,
         experimental_activeTools: experimental_deepResearch
           ? allTools
           : firecrawlTools,
@@ -378,10 +387,13 @@ export async function POST( request: Request ) {
                   const timeRemaining = timeLimit - timeElapsed
                   const timeRemainingMinutes =
                     Math.round( ( timeRemaining / 1000 / 60 ) * 10 ) / 10
+                  const customReasoningModel = customModel( reasoningModel.apiIdentifier, true )
+
+                  console.log( "🚀 ~ execute: ~ customReasoningModel:", customReasoningModel )
 
                   // Reasoning model
                   const result = await generateText( {
-                    model: customModel( reasoningModel.apiIdentifier, true ),
+                    model: customReasoningModel,
                     prompt: `You are a research agent analyzing findings about: ${topic}
                             You have ${timeRemainingMinutes} minutes remaining to complete the research but you don't need to use all of it.
                             Current findings: ${findings
